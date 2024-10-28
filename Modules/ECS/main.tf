@@ -1,6 +1,6 @@
 data "aws_ami" "amazon_linux" {
   most_recent = true
-  owners = ["amazon"]
+  owners      = ["amazon"]
 
   filter {
     name   = "name"
@@ -18,9 +18,9 @@ resource "aws_ecs_cluster" "TK_ecs_cluster" {
 
 resource "aws_ecs_service" "TK_ecs_service" {
   name          = "TK_ecs_service"
-  cluster       = var.ecs_cluster_id
+  cluster       = aws_ecs_cluster.TK_ecs_cluster.id
   desired_count = 1
-  launch_type = "EC2"
+  launch_type   = "EC2"
   load_balancer {
     target_group_arn = var.tg_arn
     container_name   = "tk-php"
@@ -59,17 +59,7 @@ resource "aws_ecs_task_definition" "tk_task_def" {
   memory                   = var.task_memory
 
 
-  container_definitions = jsondecode([{
-    name      = var.container_name
-    image     = var.container_image
-    cpu       = var.container_cpu
-    memory    = var.container_memory
-    essential = true
-    portMapping = [{
-      container_port = 80
-      hostPort       = 0
-    }]
-  }])
+  container_definitions = jsonencode(var.container_definitions)
 
 }
 
@@ -85,7 +75,7 @@ resource "aws_launch_template" "tk_launch_template" {
   name_prefix   = "tk_launch_template"
   image_id      = data.aws_ami.amazon_linux.image_id
   instance_type = var.instance_type
-  
+
   iam_instance_profile {
     arn = var.iam_inst_profile_arn
   }
@@ -99,7 +89,7 @@ resource "aws_launch_template" "tk_launch_template" {
 resource "aws_autoscaling_group" "TK_ecs_ASG" {
   name                = "TK_ASG"
   max_size            = 1
-  min_size            = 1 
+  min_size            = 1
   desired_capacity    = 1
   vpc_zone_identifier = [var.private_subnet_1, var.private_subnet_2]
 
@@ -114,7 +104,7 @@ resource "aws_autoscaling_group" "TK_ecs_ASG" {
 
 
   launch_template {
-    id = aws_launch_template.tk_launch_template.id
+    id      = aws_launch_template.tk_launch_template.id
     version = "$Latest"
   }
 
@@ -125,7 +115,7 @@ resource "aws_autoscaling_group" "TK_ecs_ASG" {
   }
 
 
-  }
+}
 
 
 

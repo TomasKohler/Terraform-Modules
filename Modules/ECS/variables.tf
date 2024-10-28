@@ -31,12 +31,7 @@ variable "sg-ecs-id" {
   description = "id for the sg"
     type = string
 }
-variable "ecs_cluster_name" {
-  type = string
-}
-variable "ecs_cluster_id" {
-  type = string
-}
+
 variable "tg_arn" {
   type = string
   
@@ -54,18 +49,38 @@ variable "task_memory" {
   description = "memory for task"
 }
 
-variable "container_name" {
-  type = string  
-}
-variable "container_image" {
-  type = string  
-}
-variable "container_cpu" {
-  type = number  
-}
-variable "container_memory" {
-  type = number  
-}
+# variable "container_name" {
+#   # type = string
+
+# }
+# variable "container_image" {
+#   # type = string
+
+# }
+# variable "container_cpu" {
+#   # type = string
+
+# }
+# variable "container_memory" {
+#   # type = string
+
+# }
 variable "iam_inst_profile_arn" {
- type= string 
+  type= string 
+}
+
+variable "container_definitions" {
+  type = list(object({
+    name      = string
+    image     = string
+    cpu       = number
+    memory    = number
+    essential = bool
+    portMapping = list(object({
+      container_port = number
+      hostPort       = number
+    }))
+  }))
+
+  default = [  ]
 }
